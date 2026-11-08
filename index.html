@@ -104,7 +104,7 @@ li:first-child{border-top:0}
   </div>
   <ul id="daftar"></ul>
 
-  <p style="margin:28px 0 8px"><button class="btn" id="btnRiwayat">Lihat riwayat perubahan</button></p>
+  <p id="boxRiwayat" hidden style="margin:28px 0 8px"><button class="btn" id="btnRiwayat">Lihat riwayat perubahan</button></p>
   <ul id="riwayat" hidden></ul>
 </main>
 
@@ -224,6 +224,8 @@ function load(){
 
 function setAuth(session){
   loggedIn = !!session;
+  $('boxRiwayat').hidden = !loggedIn;
+  if(!loggedIn){ $('riwayat').hidden = true; $('btnRiwayat').textContent = 'Lihat riwayat perubahan'; }
   $('form').hidden = !loggedIn;
   $('btnAwal').hidden = !loggedIn;
   $('loginBox').hidden = true;
