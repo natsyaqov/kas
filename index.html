@@ -226,7 +226,11 @@ function setAuth(session){
 }
 
 $('btnLogin').onclick = function(){
-  if(loggedIn) sb.auth.signOut(); else $('loginBox').hidden = !$('loginBox').hidden;
+  if(loggedIn){
+    sb.auth.signOut({ scope: 'local' }).then(function(){ setAuth(null); });
+  } else {
+    $('loginBox').hidden = !$('loginBox').hidden;
+  }
 };
 $('doLogin').onclick = function(){
   sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('pass').value }).then(function(r){
