@@ -31,13 +31,15 @@
   html.dark .bg-white{background-color:#162033}
   html.dark .bg-slate-50{background-color:#0f1a2e}
   html.dark .bg-slate-50\/50,html.dark .bg-slate-50\/80{background-color:#1a2740}
-  html.dark .bg-slate-100{background-color:#22304a}
+  html.dark .bg-slate-100, html.dark .bg-slate-200{background-color:#22304a}
   html.dark .hover\:bg-slate-50:hover,html.dark .hover\:bg-slate-50\/80:hover{background-color:#1a2740}
   html.dark .hover\:bg-slate-200:hover{background-color:#2c3c5a}
   html.dark .bg-emerald-50{background-color:rgba(16,185,129,.12)}
   html.dark .bg-rose-50{background-color:rgba(244,63,94,.12)}
   html.dark .bg-emerald-100{background-color:rgba(16,185,129,.2)}
   html.dark .bg-rose-100{background-color:rgba(244,63,94,.2)}
+  html.dark .bg-blue-50{background-color:rgba(37,99,235,.15)}
+  html.dark .hover\:bg-blue-100:hover{background-color:rgba(37,99,235,.25)}
   html.dark .bg-slate-900{background-color:#2563eb}
   html.dark .hover\:bg-slate-800:hover{background-color:#1d4ed8}
   html.dark .border-slate-50,html.dark .border-slate-100,html.dark .border-slate-200{border-color:#26344d}
@@ -64,13 +66,17 @@
   #laporan .tot td{font-weight:700;border-top:2px solid #000}
   #laporan .sub{color:#444;margin:2px 0 0}
   @media print{
-    body.cetak main{display:none}
+    body.cetak main, body.cetak #toast-box{display:none}
     body.cetak #laporan{display:block}
     body,html.dark body{background:#fff;color:#000}
   }
 </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
+
+<!-- Wadah Toast Notifikasi -->
+<div id="toast-box" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-[90%] max-w-sm pointer-events-none"></div>
+
 <main class="max-w-xl mx-auto p-4 sm:p-6 pb-24">
 
   <!-- Header -->
@@ -168,6 +174,11 @@
 
   <!-- Daftar Transaksi -->
   <ul id="daftar" class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden"></ul>
+  
+  <!-- Tombol Load More / Pagination -->
+  <div class="mt-4 text-center" id="boxLoadMore" hidden>
+    <button id="btnLoadMore" class="text-sm font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-6 py-2.5 rounded-full transition-all duration-200 active:scale-95 shadow-sm">Tampilkan Lebih Banyak ⬇️</button>
+  </div>
 
   <!-- Log Riwayat (khusus bendahara) -->
   <div class="text-center mt-10" id="boxRiwayat" hidden>
@@ -192,7 +203,6 @@ var KAT = {
   masuk: ['Iuran keamanan','Iuran kebersihan','Kas sosial','Sumbangan','Lainnya'],
   keluar: ['Gaji satpam','Petugas sampah','Listrik & air pos ronda','Santunan warga','Kegiatan warga','Perlengkapan','Lainnya']
 };
-// Ikon tiap kategori. Kalau kamu menambah kategori baru, tambahkan juga di sini.
 var IKON = {
   'Iuran keamanan':'🛡️','Iuran kebersihan':'🧹','Kas sosial':'💝','Sumbangan':'🎁',
   'Gaji satpam':'👮','Petugas sampah':'🗑️','Listrik & air pos ronda':'💡',
@@ -211,8 +221,31 @@ var ikon = function(k){ return IKON[k] || '📌'; };
 
 var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 var data = [], saldoAwal = 0, loggedIn = false, editId = null, katAktif = '';
+var limitTampil = 20; // Batas pagination transaksi
+
 $('judul').textContent = 'KAS ' + NAMA_RT.split('/')[0].trim();
 $('tanggal').value = new Date().toISOString().slice(0,10);
+
+/* ===== 1. FITUR TOAST NOTIFICATION ===== */
+function showToast(msg, type) {
+  var box = $('toast-box');
+  var t = document.createElement('div');
+  var bg = type === 'error' ? 'bg-rose-500' : 'bg-emerald-500';
+  t.className = 'text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-lg transform transition-all duration-300 translate-y-[-100%] opacity-0 ' + bg;
+  t.textContent = msg;
+  box.appendChild(t);
+  
+  // Animasi masuk
+  requestAnimationFrame(function(){
+    t.classList.remove('translate-y-[-100%]', 'opacity-0');
+  });
+  
+  // Animasi keluar dan hapus elemen
+  setTimeout(function(){
+    t.classList.add('translate-y-[-100%]', 'opacity-0');
+    setTimeout(function(){ t.remove(); }, 300);
+  }, 3000);
+}
 
 /* ===== Tema gelap/terang ===== */
 var isDark = function(){ return document.documentElement.classList.contains('dark'); };
@@ -239,12 +272,10 @@ $('jumlah').addEventListener('input', function(){ this.value = ribuan(this.value
 isiKategori();
 
 /* ===== Penyaringan data ===== */
-// Hanya per bulan (dipakai untuk kartu total, grafik, laporan, Excel, dan WhatsApp)
 function rowsBulan(){
   var b = $('bulan').value;
   return b ? data.filter(function(t){ return t.tanggal.slice(0,7) === b; }) : data.slice();
 }
-// Bulan + kategori + pencarian (khusus untuk daftar yang tampil)
 function filtered(){
   var q = $('cari').value.toLowerCase().trim();
   var res = rowsBulan();
@@ -274,7 +305,7 @@ function renderChips(){
     b.className = 'shrink-0 text-xs font-semibold px-3.5 py-2 rounded-full border transition-all duration-200 active:scale-95 ' +
       (k === katAktif ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-200 text-slate-600');
     b.textContent = k ? ikon(k) + ' ' + k : 'Semua';
-    b.onclick = function(){ katAktif = k; render(); };
+    b.onclick = function(){ katAktif = k; limitTampil = 20; render(); };
     box.appendChild(b);
   });
 }
@@ -349,11 +380,17 @@ function render(msg){
     var e = document.createElement('li');
     e.className = 'py-12 px-6 flex flex-col items-center justify-center text-center bg-slate-50/50';
     e.innerHTML = '<div class="text-5xl mb-3">🗂️</div><p class="text-slate-500 font-medium text-sm">' + (msg || 'Tidak ada transaksi ditemukan.') + '</p>';
-    ul.appendChild(e); return;
+    ul.appendChild(e); 
+    $('boxLoadMore').hidden = true;
+    return;
   }
 
+  /* ===== 3. FITUR PAGINATION (Pembatasan Tampil) ===== */
+  var rowsTampil = rows.slice(0, limitTampil);
+  $('boxLoadMore').hidden = rows.length <= limitTampil;
+
   var lastDate = null;
-  rows.forEach(function(t){
+  rowsTampil.forEach(function(t){
     if (t.tanggal !== lastDate) {
       var hd = document.createElement('li');
       hd.className = 'bg-slate-50/80 px-5 py-2.5 text-[11px] font-bold text-slate-500 tracking-widest border-y border-slate-100';
@@ -364,7 +401,7 @@ function render(msg){
     var li = document.createElement('li');
     li.className = 'p-4 sm:px-5 flex items-center justify-between hover:bg-slate-50/80 transition-colors border-b border-slate-50 last:border-0';
     var leftBox = document.createElement('div');
-    leftBox.className = 'flex items-center gap-3.5 min-w-0';
+    leftBox.className = 'flex items-center gap-3.5 min-w-0 w-full';
     var icon = document.createElement('div');
     icon.className = (t.jenis === 'masuk' ? 'bg-emerald-100' : 'bg-rose-100') + ' w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0';
     icon.textContent = ikon(t.kategori);
@@ -399,7 +436,8 @@ function render(msg){
       h.onclick = function(){
         if(!confirm('Hapus transaksi “' + t.ket + '”?')) return;
         sb.from('kas').delete().eq('id', t.id).then(function(r){
-          if(r.error) alert('Gagal menghapus: ' + r.error.message); else load();
+          if(r.error) showToast('Gagal menghapus: ' + r.error.message, 'error'); 
+          else { showToast('Transaksi berhasil dihapus', 'success'); load(); }
         });
       };
       ak.appendChild(ed); ak.appendChild(h); rightBox.appendChild(ak);
@@ -409,8 +447,23 @@ function render(msg){
   });
 }
 
+// Event untuk tombol Load More
+$('btnLoadMore').onclick = function(){ limitTampil += 20; render(); };
+
+/* ===== 2. FITUR SKELETON LOADING ===== */
+function showLoadingSkeleton() {
+  $('saldo').innerHTML = '<span class="animate-pulse text-slate-300">Memuat...</span>';
+  var skeletonHtml = '';
+  for(var i=0; i<3; i++) {
+    skeletonHtml += '<li class="p-4 sm:px-5 flex items-center justify-between border-b border-slate-50"><div class="flex items-center gap-3.5 w-full"><div class="w-10 h-10 rounded-full bg-slate-200 animate-pulse shrink-0"></div><div class="flex-1 space-y-2"><div class="h-4 bg-slate-200 rounded w-3/4 animate-pulse"></div><div class="h-3 bg-slate-200 rounded w-1/2 animate-pulse"></div></div></div></li>';
+  }
+  $('daftar').innerHTML = skeletonHtml;
+}
+
 function load(){
   if(!$('riwayat').hidden) loadRiwayat();
+  if(data.length === 0) showLoadingSkeleton(); // Munculkan skeleton jika belum ada data sama sekali
+
   Promise.all([
     sb.from('kas').select('*').order('tanggal',{ascending:false}).order('created_at',{ascending:false}),
     sb.from('pengaturan').select('saldo_awal').eq('id',1).maybeSingle()
@@ -439,7 +492,7 @@ function setAuth(session){
 
 $('btnLogin').onclick = function(){
   if(loggedIn){
-    sb.auth.signOut({ scope: 'local' }).then(function(){ setAuth(null); });
+    sb.auth.signOut({ scope: 'local' }).then(function(){ setAuth(null); showToast('Berhasil keluar', 'success'); });
   } else {
     $('loginBox').hidden = !$('loginBox').hidden;
     if(!$('loginBox').hidden){ window.scrollTo({top:0, behavior:'smooth'}); $('email').focus(); }
@@ -449,7 +502,8 @@ $('doLogin').onclick = function(){
   var btn = $('doLogin'); btn.textContent = 'Loading...'; btn.disabled = true;
   sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('pass').value }).then(function(r){
     btn.textContent = 'Masuk'; btn.disabled = false;
-    if(r.error) alert('Login gagal: email atau password salah.'); else $('pass').value = '';
+    if(r.error) showToast('Login gagal: email atau password salah', 'error'); 
+    else { $('pass').value = ''; showToast('Berhasil login sebagai bendahara', 'success'); }
   });
 };
 function tekanEnter(e) { if (e.key === 'Enter') $('doLogin').click(); }
@@ -457,8 +511,8 @@ $('email').addEventListener('keypress', tekanEnter);
 $('pass').addEventListener('keypress', tekanEnter);
 
 sb.auth.onAuthStateChange(function(_e, session){ setAuth(session); });
-$('bulan').onchange = function(){ render(); };
-$('cari').oninput = function(){ render(); };
+$('bulan').onchange = function(){ limitTampil = 20; render(); };
+$('cari').oninput = function(){ limitTampil = 20; render(); };
 
 /* ===== Tambah / edit / saldo awal ===== */
 function mulaiEdit(t){
@@ -479,13 +533,14 @@ $('batal').onclick = selesaiEdit;
 
 $('tambah').onclick = function(){
   var jumlah = parseInt($('jumlah').value.replace(/\D/g,''), 10), ket = $('ket').value.trim();
-  if(!ket || !jumlah || jumlah <= 0 || !$('tanggal').value){ alert('Isi tanggal, keterangan, dan jumlah dulu ya.'); return; }
+  if(!ket || !jumlah || jumlah <= 0 || !$('tanggal').value){ showToast('Isi tanggal, keterangan, dan jumlah terlebih dahulu', 'error'); return; }
   var payload = { jenis: $('jenis').value, tanggal: $('tanggal').value, kategori: $('kategori').value, ket: ket, jumlah: jumlah };
   var btn = $('tambah'); btn.disabled = true; btn.textContent = 'Menyimpan...';
   var q = editId ? sb.from('kas').update(payload).eq('id', editId) : sb.from('kas').insert(payload);
   q.then(function(r){
     btn.disabled = false;
-    if(r.error){ alert('Gagal menyimpan: ' + r.error.message); btn.textContent = editId ? 'Simpan perubahan' : 'Tambah transaksi'; return; }
+    if(r.error){ showToast('Gagal menyimpan: ' + r.error.message, 'error'); btn.textContent = editId ? 'Simpan perubahan' : 'Tambah transaksi'; return; }
+    showToast('Transaksi berhasil disimpan', 'success');
     selesaiEdit(); load();
   });
 };
@@ -494,9 +549,10 @@ $('btnAwal').onclick = function(){
   var v = prompt('Saldo awal kas (Rp):', saldoAwal);
   if(v === null) return;
   var n = parseInt(String(v).replace(/[^\d-]/g,''), 10);
-  if(isNaN(n)){ alert('Masukkan angka saja.'); return; }
+  if(isNaN(n)){ showToast('Masukkan angka saja', 'error'); return; }
   sb.from('pengaturan').upsert({ id: 1, saldo_awal: n }).then(function(r){
-    if(r.error) alert('Gagal menyimpan: ' + r.error.message); else load();
+    if(r.error) showToast('Gagal menyimpan: ' + r.error.message, 'error'); 
+    else { showToast('Saldo awal berhasil diatur', 'success'); load(); }
   });
 };
 
@@ -550,7 +606,7 @@ $('export').onclick = function(){
 
 $('cetak').onclick = function(){
   var ym = $('bulan').value;
-  if(!ym){ alert('Pilih bulan dulu di filter riwayat transaksi, lalu klik Cetak Laporan.'); return; }
+  if(!ym){ showToast('Pilih bulan dulu di filter riwayat transaksi, lalu klik Cetak Laporan', 'error'); return; }
   var rows = rowsBulan().sort(function(a,b){ return a.tanggal.localeCompare(b.tanggal) || a.created_at.localeCompare(b.created_at); });
   var awal = saldoSebelum(ym), pm = perKategori(rows,'masuk'), pk = perKategori(rows,'keluar');
   var akhir = awal + pm.total - pk.total;
@@ -638,7 +694,7 @@ window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); 
 if(window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) $('boxPasang').hidden = true;
 $('btnPasang').onclick = function(){
   if(promptPasang){ promptPasang.prompt(); promptPasang = null; return; }
-  alert('Cara pasang di HP:\n\nAndroid (Chrome): ketuk menu ⋮ lalu pilih "Instal aplikasi" atau "Tambahkan ke layar utama".\n\niPhone (Safari): ketuk tombol Bagikan lalu pilih "Tambah ke Layar Utama".');
+  showToast('Android: Ketuk ⋮ lalu "Instal aplikasi". iPhone: Ketuk Bagikan lalu "Tambah ke Layar Utama".', 'success');
 };
 if('serviceWorker' in navigator){
   window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
