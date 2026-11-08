@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   body { font-family: 'Inter', sans-serif; }
-  /* Laporan cetak (Tidak diubah, tetap pakai CSS bawaan agar rapi saat diprint) */
+  /* Laporan cetak */
   #laporan{display:none;color:#000;background:#fff;padding:24px;max-width:720px;margin:0 auto}
   #laporan h1{color:#000;font-size:1.4rem;margin:0}
   #laporan h3{margin:20px 0 6px;font-size:1rem}
@@ -28,80 +28,90 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
 <main class="max-w-xl mx-auto p-4 sm:p-6 pb-24">
-  <!-- Header -->
+  
+  <!-- 1. Header yang Lebih Personal & Bernyawa -->
   <div class="flex items-center justify-between mb-6">
-    <h1 id="judul" class="text-lg font-bold text-slate-700 tracking-tight">KAS</h1>
-    <button id="btnLogin" class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors bg-blue-50 px-3 py-1.5 rounded-full">Login bendahara</button>
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-md">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+      </div>
+      <div>
+        <h1 id="judul" class="text-xl font-extrabold text-slate-800 tracking-tight">KAS RT</h1>
+        <p class="text-xs text-slate-500 font-medium">Transparan & Terpercaya</p>
+      </div>
+    </div>
+    <!-- 2. Micro-interaction: active:scale-95 agar membal saat disentuh -->
+    <button id="btnLogin" class="text-xs font-semibold text-slate-600 hover:text-blue-700 bg-white border border-slate-200 shadow-sm px-4 py-2.5 rounded-full transition-all duration-200 active:scale-95">Login</button>
   </div>
 
   <!-- Card Saldo Utama -->
-  <section class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6 text-center" aria-live="polite">
+  <section class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 mb-6 text-center" aria-live="polite">
     <p class="text-sm text-slate-500 font-medium mb-1">Total Saldo Kas</p>
-    <h2 id="saldo" class="text-4xl sm:text-5xl font-bold text-slate-900 tracking-tight mb-2">Rp0</h2>
+    <h2 id="saldo" class="text-4xl sm:text-5xl font-bold text-slate-900 tracking-tight mb-2 transition-all">Rp0</h2>
     <p id="infoAwal" class="text-xs text-slate-400" hidden></p>
     
     <div class="grid grid-cols-2 gap-3 mt-6 pt-5 border-t border-slate-100 text-left">
-      <div class="bg-emerald-50 rounded-xl p-3 sm:p-4 border border-emerald-100/50">
+      <div class="bg-emerald-50 rounded-2xl p-4 border border-emerald-100/50">
         <p id="lblPeriodeMasuk" class="text-xs text-emerald-600 font-semibold mb-1">Pemasukan</p>
         <p id="totalMasuk" class="text-lg sm:text-xl font-bold text-emerald-700">Rp0</p>
       </div>
-      <div class="bg-rose-50 rounded-xl p-3 sm:p-4 border border-rose-100/50">
+      <div class="bg-rose-50 rounded-2xl p-4 border border-rose-100/50">
         <p id="lblPeriodeKeluar" class="text-xs text-rose-600 font-semibold mb-1">Pengeluaran</p>
         <p id="totalKeluar" class="text-lg sm:text-xl font-bold text-rose-700">Rp0</p>
       </div>
     </div>
     <div class="mt-4">
-      <button id="btnAwal" class="text-xs text-slate-500 underline hover:text-slate-700" hidden>Atur saldo awal</button>
+      <button id="btnAwal" class="text-xs text-slate-400 underline hover:text-slate-600 transition-colors" hidden>Atur saldo awal</button>
     </div>
   </section>
 
   <!-- Box Login -->
   <div id="loginBox" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6 space-y-3" hidden>
     <h3 class="font-semibold text-slate-700 mb-2">Login Bendahara</h3>
-    <input id="email" type="email" placeholder="Email bendahara" autocomplete="username" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50 outline-none transition-all">
-    <input id="pass" type="password" placeholder="Password" autocomplete="current-password" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-slate-50 outline-none transition-all">
-    <button id="doLogin" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl transition-colors mt-2">Masuk</button>
+    <input id="email" type="email" placeholder="Email bendahara" autocomplete="username" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 bg-slate-50 outline-none transition-all">
+    <input id="pass" type="password" placeholder="Password" autocomplete="current-password" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 bg-slate-50 outline-none transition-all">
+    <button id="doLogin" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-all duration-200 active:scale-[0.98] mt-2">Masuk</button>
   </div>
 
   <!-- Form Transaksi -->
-  <div id="form" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6" hidden>
-    <h3 class="font-semibold text-slate-700 mb-4" id="formTitle">Catat Transaksi</h3>
+  <div id="form" class="bg-white rounded-3xl shadow-sm border border-slate-100 p-5 sm:p-6 mb-6" hidden>
+    <h3 class="font-bold text-slate-800 mb-4" id="formTitle">Catat Transaksi</h3>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <select id="jenis" aria-label="Jenis" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 bg-slate-50 outline-none">
+      <select id="jenis" aria-label="Jenis" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 bg-slate-50 outline-none font-medium">
         <option value="masuk">Pemasukan (+)</option>
         <option value="keluar">Pengeluaran (-)</option>
       </select>
-      <input id="tanggal" type="date" aria-label="Tanggal" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 bg-slate-50 outline-none">
-      <select id="kategori" aria-label="Kategori" class="col-span-1 sm:col-span-2 w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 bg-slate-50 outline-none"></select>
-      <input id="ket" type="text" placeholder="Keterangan, misal: Iuran keamanan Pak Budi" aria-label="Keterangan" class="col-span-1 sm:col-span-2 w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 bg-slate-50 outline-none">
-      <input id="jumlah" type="text" inputmode="numeric" autocomplete="off" placeholder="Jumlah (Rp), contoh: 50.000" aria-label="Jumlah" class="col-span-1 sm:col-span-2 w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 bg-slate-50 outline-none font-semibold text-lg">
+      <input id="tanggal" type="date" aria-label="Tanggal" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 bg-slate-50 outline-none">
+      <select id="kategori" aria-label="Kategori" class="col-span-1 sm:col-span-2 w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 bg-slate-50 outline-none"></select>
+      <input id="ket" type="text" placeholder="Keterangan, misal: Iuran keamanan Pak Budi" aria-label="Keterangan" class="col-span-1 sm:col-span-2 w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 bg-slate-50 outline-none">
+      <input id="jumlah" type="text" inputmode="numeric" autocomplete="off" placeholder="Jumlah (Rp), contoh: 50.000" aria-label="Jumlah" class="col-span-1 sm:col-span-2 w-full px-4 py-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 bg-slate-50 outline-none font-bold text-xl text-slate-800">
       
-      <button id="tambah" class="col-span-1 sm:col-span-2 mt-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50">Tambah transaksi</button>
-      <button id="batal" class="col-span-1 sm:col-span-2 mt-1 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold py-2.5 rounded-xl transition-colors" hidden>Batal edit</button>
+      <button id="tambah" class="col-span-1 sm:col-span-2 mt-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 rounded-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-50">Tambah transaksi</button>
+      <button id="batal" class="col-span-1 sm:col-span-2 mt-1 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold py-3 rounded-xl transition-all duration-200 active:scale-[0.98]" hidden>Batal edit</button>
     </div>
   </div>
 
   <!-- Aksi & Filter -->
   <div class="flex flex-wrap items-center justify-between gap-3 mb-4 mt-8">
     <h2 class="text-lg font-bold text-slate-800 flex-1 min-w-[120px]">Riwayat Transaksi</h2>
-    <select id="bulan" aria-label="Filter bulan" class="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none">
+    <select id="bulan" aria-label="Filter bulan" class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm">
       <option value="">Semua bulan</option>
     </select>
   </div>
   
-  <div class="flex gap-2 mb-4">
-    <button id="cetak" class="flex-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold py-2 px-3 rounded-xl shadow-sm transition-colors text-center">Cetak Laporan</button>
-    <button id="export" class="flex-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold py-2 px-3 rounded-xl shadow-sm transition-colors text-center">Export Excel</button>
+  <div class="flex gap-3 mb-5">
+    <button id="cetak" class="flex-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold py-2.5 px-3 rounded-xl shadow-sm transition-all duration-200 active:scale-95 text-center">🖨️ Cetak Laporan</button>
+    <button id="export" class="flex-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold py-2.5 px-3 rounded-xl shadow-sm transition-all duration-200 active:scale-95 text-center">📊 Export Excel</button>
   </div>
 
   <!-- Daftar Transaksi -->
-  <ul id="daftar" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden divide-y divide-slate-100"></ul>
+  <ul id="daftar" class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden"></ul>
 
   <!-- Log Riwayat -->
-  <div class="text-center mt-8" id="boxRiwayat" hidden>
-    <button id="btnRiwayat" class="text-sm text-slate-500 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-full transition-colors">Lihat riwayat sistem</button>
+  <div class="text-center mt-10" id="boxRiwayat" hidden>
+    <button id="btnRiwayat" class="text-xs font-semibold text-slate-500 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 px-5 py-2.5 rounded-full transition-all duration-200 active:scale-95">Lihat riwayat sistem</button>
   </div>
-  <ul id="riwayat" class="mt-4 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden divide-y divide-slate-100" hidden></ul>
+  <ul id="riwayat" class="mt-4 bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden divide-y divide-slate-50" hidden></ul>
 </main>
 
 <section id="laporan"></section>
@@ -128,8 +138,7 @@ var ribuan = function(v){ var d = String(v).replace(/\D/g,'').replace(/^0+(?=\d)
 
 var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 var data = [], saldoAwal = 0, loggedIn = false, editId = null;
-$('judul').textContent = 'Buku Kas ' + NAMA_RT;
-$('tanggal').value = new Date().toISOString().slice(0,10);
+$('judul').textContent = 'KAS ' + NAMA_RT.split('/')[0].trim(); // Disingkat agar header rapi$('tanggal').value = new Date().toISOString().slice(0,10);
 
 function isiKategori(pilih){
   var sel = $('kategori'), list = KAT[$('jenis').value].slice();
@@ -138,8 +147,7 @@ function isiKategori(pilih){
   list.forEach(function(k){ var o = document.createElement('option'); o.value = k; o.textContent = k; sel.appendChild(o); });
   if(pilih) sel.value = pilih;
 }
-$('jenis').onchange = function(){ isiKategori(); };
-$('jumlah').addEventListener('input', function(){ this.value = ribuan(this.value); });
+$('jenis').onchange = function(){ isiKategori(); };$('jumlah').addEventListener('input', function(){ this.value = ribuan(this.value); });
 isiKategori();
 
 function filtered(){
@@ -156,38 +164,57 @@ function renderBulan(){
   sel.value = list.indexOf(cur) >= 0 ? cur : '';
 }
 
-// Ikon SVG untuk transaksi
 var iconMasuk = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>';
 var iconKeluar = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>';
+
+// Fungsi untuk menentukan teks header grup tanggal
+function formatGrupTanggal(tgl) {
+  var hariIni = new Date().toISOString().slice(0,10);
+  var kemarin = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+  if (tgl === hariIni) return 'HARI INI';
+  if (tgl === kemarin) return 'KEMARIN';
+  return tglIndo(tgl).toUpperCase();
+}
 
 function render(msg){
   var total = saldoAwal;
   data.forEach(function(t){ total += t.jenis==='masuk' ? t.jumlah : -t.jumlah; });
-  $('saldo').textContent = rp(total);
-  $('infoAwal').hidden = !saldoAwal;
+  $('saldo').textContent = rp(total);$('infoAwal').hidden = !saldoAwal;
   $('infoAwal').textContent = 'Termasuk saldo awal ' + rp(saldoAwal);
 
   var rows = filtered(), m = 0, k = 0;
   rows.forEach(function(t){ if(t.jenis==='masuk') m += t.jumlah; else k += t.jumlah; });
-  $('totalMasuk').textContent = rp(m);
-  $('totalKeluar').textContent = rp(k);
+  $('totalMasuk').textContent = rp(m);$('totalKeluar').textContent = rp(k);
   
-  var lbl = $('bulan').value ? namaBulan($('bulan').value) : 'Semua Periode';
-  $('lblPeriodeMasuk').textContent = 'Pemasukan ' + lbl;
+  var lbl = $('bulan').value ? namaBulan($('bulan').value) : 'Semua Periode';$('lblPeriodeMasuk').textContent = 'Pemasukan ' + lbl;
   $('lblPeriodeKeluar').textContent = 'Pengeluaran ' + lbl;
 
   var ul = $('daftar'); ul.innerHTML = '';
+  
+  // 4. Visualisasi Kosong (Empty States)
   if(!rows.length){
-    var e = document.createElement('li'); e.className = 'p-8 text-center text-slate-400 text-sm';
-    e.textContent = msg || 'Belum ada transaksi di periode ini.';
+    var e = document.createElement('li'); 
+    e.className = 'py-12 px-6 flex flex-col items-center justify-center text-center bg-slate-50/50';
+    e.innerHTML = '<svg class="w-16 h-16 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>' +
+                  '<p class="text-slate-500 font-medium text-sm">' + (msg || 'Belum ada transaksi di periode ini.') + '</p>';
     ul.appendChild(e); return;
   }
   
+  var lastDate = null;
+
   rows.forEach(function(t){
+    // 3. Date Grouping
+    if (t.tanggal !== lastDate) {
+      var hd = document.createElement('li');
+      hd.className = 'bg-slate-50/80 px-5 py-2.5 text-[11px] font-bold text-slate-500 tracking-widest border-y border-slate-100';
+      hd.textContent = formatGrupTanggal(t.tanggal);
+      ul.appendChild(hd);
+      lastDate = t.tanggal;
+    }
+
     var li = document.createElement('li');
-    li.className = 'p-4 sm:px-5 flex items-center justify-between hover:bg-slate-50 transition-colors';
+    li.className = 'p-4 sm:px-5 flex items-center justify-between hover:bg-slate-50/80 transition-colors border-b border-slate-50 last:border-0';
     
-    // Kiri (Ikon + Teks)
     var leftBox = document.createElement('div');
     leftBox.className = 'flex items-center gap-3.5 min-w-0';
     
@@ -202,29 +229,28 @@ function render(msg){
     a.textContent = t.ket;
     var d = document.createElement('p'); 
     d.className = 'text-xs text-slate-500 mt-0.5 truncate';
-    d.textContent = tglIndo(t.tanggal) + ' • ' + t.kategori;
+    d.textContent = t.kategori; // Tanggal dihapus dari sini karena sudah ada di Date Header
     
     ket.appendChild(a); ket.appendChild(d);
     leftBox.appendChild(icon); leftBox.appendChild(ket);
     
-    // Kanan (Nominal + Tombol)
     var rightBox = document.createElement('div');
     rightBox.className = 'text-right shrink-0 ml-3';
     
     var j = document.createElement('p');
-    j.className = 'font-bold text-sm sm:text-base ' + (t.jenis==='masuk'?'text-emerald-600':'text-rose-600');
+    j.className = 'font-bold text-sm sm:text-base tracking-tight ' + (t.jenis==='masuk'?'text-emerald-600':'text-rose-600');
     j.textContent = (t.jenis==='masuk'?'+':'−') + rp(t.jumlah);
     rightBox.appendChild(j);
     
     if(loggedIn){
       var ak = document.createElement('div'); 
-      ak.className = 'flex gap-3 mt-1 justify-end';
+      ak.className = 'flex gap-3 mt-1.5 justify-end';
       var ed = document.createElement('button'); 
-      ed.className = 'text-[11px] font-semibold text-blue-600 hover:text-blue-800 uppercase tracking-wide';
+      ed.className = 'text-[11px] font-bold text-blue-600 hover:text-blue-800 uppercase tracking-wider active:scale-90 transition-transform';
       ed.textContent = 'Edit'; 
       ed.onclick = function(){ mulaiEdit(t); };
       var h = document.createElement('button'); 
-      h.className = 'text-[11px] font-semibold text-rose-600 hover:text-rose-800 uppercase tracking-wide';
+      h.className = 'text-[11px] font-bold text-rose-600 hover:text-rose-800 uppercase tracking-wider active:scale-90 transition-transform';
       h.textContent = 'Hapus'; 
       h.onclick = function(){
         if(!confirm('Hapus transaksi “' + t.ket + '”?')) return;
@@ -257,11 +283,10 @@ function load(){
 function setAuth(session){
   loggedIn = !!session;
   $('boxRiwayat').hidden = !loggedIn;
-  if(!loggedIn){ $('riwayat').hidden = true; $('btnRiwayat').textContent = 'Lihat riwayat sistem'; }
-  $('form').hidden = !loggedIn;
+  if(!loggedIn){ $('riwayat').hidden = true; $('btnRiwayat').textContent = 'Lihat riwayat sistem'; }$('form').hidden = !loggedIn;
   $('btnAwal').hidden = !loggedIn;
   $('loginBox').hidden = true;
-  $('btnLogin').textContent = loggedIn ? 'Keluar' : 'Login bendahara';
+  $('btnLogin').textContent = loggedIn ? 'Keluar' : 'Login';
   if(!loggedIn) selesaiEdit();
   render();
 }
@@ -275,7 +300,7 @@ $('btnLogin').onclick = function(){
 };
 $('doLogin').onclick = function(){
   var btn = $('doLogin'); btn.textContent = 'Loading...'; btn.disabled = true;
-  sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('pass').value }).then(function(r){
+  sb.auth.signInWithPassword({ email: $('email').value.trim(), password:$('pass').value }).then(function(r){
     btn.textContent = 'Masuk'; btn.disabled = false;
     if(r.error) alert('Login gagal: email atau password salah.'); else $('pass').value = '';
   });
@@ -286,23 +311,21 @@ $('bulan').onchange = function(){ render(); };
 function mulaiEdit(t){
   editId = t.id;
   $('jenis').value = t.jenis; isiKategori(t.kategori);
-  $('tanggal').value = t.tanggal; $('ket').value = t.ket; $('jumlah').value = ribuan(t.jumlah);
-  $('formTitle').textContent = 'Edit Transaksi';
-  $('tambah').textContent = 'Simpan perubahan'; $('batal').hidden = false;
+  $('tanggal').value = t.tanggal; $('ket').value = t.ket; $('jumlah').value = ribuan(t.jumlah);$('formTitle').textContent = 'Edit Transaksi';
+  $('tambah').textContent = 'Simpan perubahan';$('batal').hidden = false;
   $('form').scrollIntoView({behavior:'smooth', block:'center'});
 }
 function selesaiEdit(){
   editId = null;
-  $('ket').value = ''; $('jumlah').value = '';
-  $('formTitle').textContent = 'Catat Transaksi';
-  $('tambah').textContent = 'Tambah transaksi'; $('batal').hidden = true;
+  $('ket').value = ''; $('jumlah').value = '';$('formTitle').textContent = 'Catat Transaksi';
+  $('tambah').textContent = 'Tambah transaksi';$('batal').hidden = true;
 }
 $('batal').onclick = selesaiEdit;
 
 $('tambah').onclick = function(){
-  var jumlah = parseInt($('jumlah').value.replace(/\D/g,''), 10), ket = $('ket').value.trim();
+  var jumlah = parseInt($('jumlah').value.replace(/\D/g,''), 10), ket =$('ket').value.trim();
   if(!ket || !jumlah || jumlah <= 0 || !$('tanggal').value){ alert('Isi tanggal, keterangan, dan jumlah dulu ya.'); return; }
-  var payload = { jenis: $('jenis').value, tanggal: $('tanggal').value, kategori: $('kategori').value, ket: ket, jumlah: jumlah };
+  var payload = { jenis: $('jenis').value, tanggal: $('tanggal').value, kategori:$('kategori').value, ket: ket, jumlah: jumlah };
   var btn = $('tambah'); btn.disabled = true; btn.textContent = 'Menyimpan...';
   var q = editId ? sb.from('kas').update(payload).eq('id', editId) : sb.from('kas').insert(payload);
   q.then(function(r){
@@ -313,12 +336,12 @@ $('tambah').onclick = function(){
 };
 
 $('btnAwal').onclick = function(){
-  var v = prompt('Saldo awal kas (Rp), yaitu uang kas sebelum mulai dicatat di web ini:', saldoAwal);
+  var v = prompt('Saldo awal kas (Rp):', saldoAwal);
   if(v === null) return;
   var n = parseInt(String(v).replace(/[^\d-]/g,''), 10);
-  if(isNaN(n)){ alert('Masukkan angka saja, misalnya 1500000.'); return; }
+  if(isNaN(n)){ alert('Masukkan angka saja.'); return; }
   sb.from('pengaturan').upsert({ id: 1, saldo_awal: n }).then(function(r){
-    if(r.error) alert('Gagal menyimpan saldo awal: ' + r.error.message); else load();
+    if(r.error) alert('Gagal menyimpan: ' + r.error.message); else load();
   });
 };
 
@@ -365,77 +388,4 @@ $('cetak').onclick = function(){
     keys.forEach(function(k){ h += '<tr><td>' + esc(k) + '</td><td class="r">' + rp(o.map[k]) + '</td></tr>'; });
     return h + '<tr class="tot"><td>Total</td><td class="r">' + rp(o.total) + '</td></tr></table>';
   }
-  var h = '<h1>Laporan Kas ' + esc(NAMA_RT) + '</h1><p class="sub">Periode ' + namaBulan(ym) + '</p>';
-  h += '<h3>Ringkasan</h3><table>' +
-       '<tr><td>Saldo awal bulan</td><td class="r">' + rp(awal) + '</td></tr>' +
-       '<tr><td>Total pemasukan</td><td class="r">' + rp(pm.total) + '</td></tr>' +
-       '<tr><td>Total pengeluaran</td><td class="r">' + rp(pk.total) + '</td></tr>' +
-       '<tr class="tot"><td>Saldo akhir bulan</td><td class="r">' + rp(akhir) + '</td></tr></table>';
-  h += tabel('Pemasukan per kategori', pm) + tabel('Pengeluaran per kategori', pk);
-  h += '<h3>Rincian transaksi</h3><table><tr><th>Tanggal</th><th>Keterangan</th><th class="r">Pemasukan</th><th class="r">Pengeluaran</th></tr>';
-  rows.forEach(function(t){
-    h += '<tr><td>' + tglIndo(t.tanggal) + '</td><td>' + esc(t.ket) + ' (' + esc(t.kategori) + ')</td>' +
-         '<td class="r">' + (t.jenis==='masuk' ? rp(t.jumlah) : '') + '</td>' +
-         '<td class="r">' + (t.jenis==='keluar' ? rp(t.jumlah) : '') + '</td></tr>';
-  });
-  h += '</table><p class="sub" style="margin-top:28px">Dicetak ' + tglIndo(new Date().toISOString().slice(0,10)) + '</p>';
-  $('laporan').innerHTML = h;
-  document.body.classList.add('cetak');
-  window.print();
-};
-window.addEventListener('afterprint', function(){ document.body.classList.remove('cetak'); });
-
-var FIELD = { jenis:'jenis', tanggal:'tanggal', kategori:'kategori', ket:'keterangan', jumlah:'jumlah' };
-function fmtVal(k, v){
-  if(k === 'jumlah') return rp(Number(v));
-  if(k === 'tanggal') return tglIndo(v);
-  if(k === 'jenis') return v === 'masuk' ? 'pemasukan' : 'pengeluaran';
-  return '“' + v + '”';
-}
-function uraian(r){
-  var b = r.data_baru, l = r.data_lama;
-  if(r.aksi === 'tambah') return 'Menambah ' + (b.jenis==='masuk'?'pemasukan':'pengeluaran') + ' “' + b.ket + '” (' + (b.kategori||'Lainnya') + ') ' + rp(b.jumlah);
-  if(r.aksi === 'hapus') return 'Menghapus ' + (l.jenis==='masuk'?'pemasukan':'pengeluaran') + ' “' + l.ket + '” (' + (l.kategori||'Lainnya') + ') ' + rp(l.jumlah);
-  if(r.aksi === 'saldo_awal') return l ? 'Mengubah saldo awal dari ' + rp(Number(l.saldo_awal)) + ' menjadi ' + rp(Number(b.saldo_awal)) : 'Mengatur saldo awal ' + rp(Number(b.saldo_awal));
-  var beda = [];
-  Object.keys(FIELD).forEach(function(k){
-    if(l[k] !== b[k]) beda.push(FIELD[k] + ' ' + fmtVal(k, l[k]) + ' → ' + fmtVal(k, b[k]));
-  });
-  return 'Mengubah “' + l.ket + '”: ' + (beda.length ? beda.join('; ') : 'tanpa perubahan isi');
-}
-function loadRiwayat(){
-  sb.from('riwayat').select('*').order('waktu',{ascending:false}).limit(50).then(function(r){
-    var ul = $('riwayat'); ul.innerHTML = '';
-    if(r.error){
-      var e = document.createElement('li'); e.className = 'p-6 text-center text-slate-400 text-sm';
-      e.textContent = 'Riwayat gagal dimuat.';
-      ul.appendChild(e); return;
-    }
-    if(!r.data.length){
-      var k = document.createElement('li'); k.className = 'p-6 text-center text-slate-400 text-sm';
-      k.textContent = 'Belum ada perubahan tercatat.';
-      ul.appendChild(k); return;
-    }
-    r.data.forEach(function(x){
-      var li = document.createElement('li');
-      li.className = 'p-4 flex flex-col hover:bg-slate-50';
-      var a = document.createElement('p'); a.className = 'text-sm text-slate-700 font-medium mb-1'; a.textContent = uraian(x);
-      var d = document.createElement('p'); d.className = 'text-[11px] text-slate-400';
-      var oleh = x.email ? x.email.split('@')[0] : 'bendahara';
-      d.textContent = new Date(x.waktu).toLocaleString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) + ' • ' + oleh;
-      li.appendChild(a); li.appendChild(d); ul.appendChild(li);
-    });
-  });
-}
-$('btnRiwayat').onclick = function(){
-  var ul = $('riwayat');
-  ul.hidden = !ul.hidden;
-  $('btnRiwayat').textContent = ul.hidden ? 'Sembunyikan riwayat sistem' : 'Lihat riwayat sistem';
-  if(!ul.hidden) loadRiwayat();
-};
-
-load();
-setInterval(load, 30000);
-</script>
-</body>
-</html>
+  var h = '<h1>Laporan Kas ' + esc(NAMA_RT) + '</h1><p class="
