@@ -311,6 +311,14 @@ $('doLogin').onclick = function(){
     if(r.error) alert('Login gagal: email atau password salah.'); else $('pass').value = '';
   });
 };
+  // Memungkinkan login dengan menekan tombol Enter
+function tekanEnter(e) {
+  if (e.key === 'Enter') {
+    $('doLogin').click();
+  }
+}
+$('email').addEventListener('keypress', tekanEnter);
+$('pass').addEventListener('keypress', tekanEnter);
 sb.auth.onAuthStateChange(function(_e, session){ setAuth(session); });
 $('bulan').onchange = function(){ render(); };
 
