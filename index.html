@@ -103,6 +103,9 @@ li:first-child{border-top:0}
     <button class="btn" id="export">Excel</button>
   </div>
   <ul id="daftar"></ul>
+
+  <p style="margin:28px 0 8px"><button class="btn" id="btnRiwayat">Lihat riwayat perubahan</button></p>
+  <ul id="riwayat" hidden></ul>
 </main>
 
 <section id="laporan"></section>
@@ -203,6 +206,7 @@ function render(msg){
 }
 
 function load(){
+  if(!$('riwayat').hidden) loadRiwayat();
   Promise.all([
     sb.from('kas').select('*').order('tanggal',{ascending:false}).order('created_at',{ascending:false}),
     sb.from('pengaturan').select('saldo_awal').eq('id',1).maybeSingle()
@@ -340,6 +344,55 @@ $('cetak').onclick = function(){
   window.print();
 };
 window.addEventListener('afterprint', function(){ document.body.classList.remove('cetak'); });
+
+var FIELD = { jenis:'jenis', tanggal:'tanggal', kategori:'kategori', ket:'keterangan', jumlah:'jumlah' };
+function fmtVal(k, v){
+  if(k === 'jumlah') return rp(Number(v));
+  if(k === 'tanggal') return tglIndo(v);
+  if(k === 'jenis') return v === 'masuk' ? 'pemasukan' : 'pengeluaran';
+  return '“' + v + '”';
+}
+function uraian(r){
+  var b = r.data_baru, l = r.data_lama;
+  if(r.aksi === 'tambah') return 'Menambah ' + (b.jenis==='masuk'?'pemasukan':'pengeluaran') + ' “' + b.ket + '” (' + (b.kategori||'Lainnya') + ') ' + rp(b.jumlah);
+  if(r.aksi === 'hapus') return 'Menghapus ' + (l.jenis==='masuk'?'pemasukan':'pengeluaran') + ' “' + l.ket + '” (' + (l.kategori||'Lainnya') + ') ' + rp(l.jumlah);
+  if(r.aksi === 'saldo_awal') return l ? 'Mengubah saldo awal dari ' + rp(Number(l.saldo_awal)) + ' menjadi ' + rp(Number(b.saldo_awal)) : 'Mengatur saldo awal ' + rp(Number(b.saldo_awal));
+  var beda = [];
+  Object.keys(FIELD).forEach(function(k){
+    if(l[k] !== b[k]) beda.push(FIELD[k] + ' ' + fmtVal(k, l[k]) + ' → ' + fmtVal(k, b[k]));
+  });
+  return 'Mengubah “' + l.ket + '”: ' + (beda.length ? beda.join('; ') : 'tanpa perubahan isi');
+}
+function loadRiwayat(){
+  sb.from('riwayat').select('*').order('waktu',{ascending:false}).limit(50).then(function(r){
+    var ul = $('riwayat'); ul.innerHTML = '';
+    if(r.error){
+      var e = document.createElement('li'); e.className = 'kosong';
+      e.textContent = 'Riwayat gagal dimuat. Pastikan update-v3.sql sudah dijalankan.';
+      ul.appendChild(e); return;
+    }
+    if(!r.data.length){
+      var k = document.createElement('li'); k.className = 'kosong';
+      k.textContent = 'Belum ada perubahan tercatat.';
+      ul.appendChild(k); return;
+    }
+    r.data.forEach(function(x){
+      var li = document.createElement('li');
+      var box = document.createElement('div'); box.className = 'ket';
+      var a = document.createElement('div'); a.textContent = uraian(x);
+      var d = document.createElement('div'); d.className = 'tgl';
+      var oleh = x.email ? x.email.split('@')[0] : 'bendahara';
+      d.textContent = new Date(x.waktu).toLocaleString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) + ', oleh ' + oleh;
+      box.appendChild(a); box.appendChild(d); li.appendChild(box); ul.appendChild(li);
+    });
+  });
+}
+$('btnRiwayat').onclick = function(){
+  var ul = $('riwayat');
+  ul.hidden = !ul.hidden;
+  $('btnRiwayat').textContent = ul.hidden ? 'Lihat riwayat perubahan' : 'Sembunyikan riwayat perubahan';
+  if(!ul.hidden) loadRiwayat();
+};
 
 load();
 setInterval(load, 30000);
