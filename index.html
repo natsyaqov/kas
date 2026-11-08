@@ -278,7 +278,8 @@ var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 var data = [], saldoAwal = 0, loggedIn = false, editId = null, katAktif = '';
 var limitTampil = 20;
 
-$('judul').textContent = 'KAS ' + NAMA_RT.split('/')[0].trim();$('tanggal').value = new Date().toISOString().slice(0,10);
+$('judul').textContent = 'KAS ' + NAMA_RT.split('/')[0].trim();
+$('tanggal').value = new Date().toISOString().slice(0,10);
 
 /* ===== 1. FITUR TOAST NOTIFICATION ===== */
 function showToast(msg, type) {
@@ -297,7 +298,7 @@ function showToast(msg, type) {
 
 /* ===== 2. SISTEM MODAL (POP-UP) INTERAKTIF ===== */
 function bukaModal(idWrap, idBox) {
-  var wrap = $(idWrap), box =$(idBox);
+  var wrap = $(idWrap), box = $(idBox);
   wrap.classList.remove('opacity-0', 'pointer-events-none');
   if(idWrap === 'modalFormWrap'){
     box.classList.remove('translate-y-full', 'sm:translate-y-10', 'sm:scale-95');
@@ -306,7 +307,7 @@ function bukaModal(idWrap, idBox) {
   }
 }
 function tutupModal(idWrap, idBox) {
-  var wrap = $(idWrap), box =$(idBox);
+  var wrap = $(idWrap), box = $(idBox);
   wrap.classList.add('opacity-0', 'pointer-events-none');
   if(idWrap === 'modalFormWrap'){
     box.classList.add('translate-y-full', 'sm:translate-y-10', 'sm:scale-95');
@@ -317,11 +318,13 @@ function tutupModal(idWrap, idBox) {
 }
 
 // Buka/Tutup Modal Form (FAB)
-$('btnFab').onclick = function(){ bukaModal('modalFormWrap', 'modalFormBox'); };$('btnCloseForm').onclick = function(){ tutupModal('modalFormWrap', 'modalFormBox'); };
+$('btnFab').onclick = function(){ bukaModal('modalFormWrap', 'modalFormBox'); };
+$('btnCloseForm').onclick = function(){ tutupModal('modalFormWrap', 'modalFormBox'); };
 
 // Modal Hapus
 var tempDeleteId = null;
-$('btnBatalHapus').onclick = function(){ tutupModal('modalConfirmWrap', 'modalConfirmBox'); tempDeleteId = null; };$('btnYakinHapus').onclick = function(){
+$('btnBatalHapus').onclick = function(){ tutupModal('modalConfirmWrap', 'modalConfirmBox'); tempDeleteId = null; };
+$('btnYakinHapus').onclick = function(){
   if(!tempDeleteId) return;
   var btn = $('btnYakinHapus'); btn.textContent = 'Menghapus...';
   sb.from('kas').delete().eq('id', tempDeleteId).then(function(r){
@@ -333,11 +336,13 @@ $('btnBatalHapus').onclick = function(){ tutupModal('modalConfirmWrap', 'modalCo
 };
 
 // Modal Saldo Awal
-$('btnBukaAwal').onclick = function(){$('inputSaldoAwal').value = ribuan(saldoAwal.toString()); 
+$('btnBukaAwal').onclick = function(){ 
+  $('inputSaldoAwal').value = ribuan(saldoAwal.toString()); 
   bukaModal('modalPromptWrap', 'modalPromptBox'); 
 };
 $('btnBatalAwal').onclick = function(){ tutupModal('modalPromptWrap', 'modalPromptBox'); };
-$('inputSaldoAwal').addEventListener('input', function(){ this.value = ribuan(this.value); });$('btnSimpanAwal').onclick = function(){
+$('inputSaldoAwal').addEventListener('input', function(){ this.value = ribuan(this.value); });
+$('btnSimpanAwal').onclick = function(){
   var n = parseInt(String($('inputSaldoAwal').value).replace(/\D/g,''), 10);
   if(isNaN(n)){ showToast('Masukkan angka yang valid', 'error'); return; }
   var btn = $('btnSimpanAwal'); btn.textContent = 'Loading...';
@@ -369,7 +374,8 @@ function isiKategori(pilih){
   list.forEach(function(k){ var o = document.createElement('option'); o.value = k; o.textContent = ikon(k) + ' ' + k; sel.appendChild(o); });
   if(pilih) sel.value = pilih;
 }
-$('jenis').onchange = function(){ isiKategori(); };$('jumlah').addEventListener('input', function(){ this.value = ribuan(this.value); });
+$('jenis').onchange = function(){ isiKategori(); };
+$('jumlah').addEventListener('input', function(){ this.value = ribuan(this.value); });
 isiKategori();
 
 function rowsBulan(){
@@ -425,7 +431,8 @@ function updateChart(rows) {
   rows.forEach(function(t){
     if(t.jenis === 'keluar') { kats[t.kategori] = (kats[t.kategori] || 0) + t.jumlah; totalKeluar += t.jumlah; }
   });
-  if(totalKeluar === 0) { $('boxChart').hidden = true; return; }$('boxChart').hidden = false;
+  if(totalKeluar === 0) { $('boxChart').hidden = true; return; }
+  $('boxChart').hidden = false;
 
   var labels = Object.keys(kats);
   var dataVals = Object.values(kats);
@@ -456,12 +463,14 @@ function updateChart(rows) {
 function render(msg){
   var total = saldoAwal;
   data.forEach(function(t){ total += t.jenis==='masuk' ? t.jumlah : -t.jumlah; });
-  $('saldo').textContent = rp(total);$('infoAwal').hidden = !saldoAwal;
+  $('saldo').textContent = rp(total);
+  $('infoAwal').hidden = !saldoAwal;
   $('infoAwal').textContent = 'Termasuk saldo awal ' + rp(saldoAwal);
 
   var bulanRows = rowsBulan(), m = 0, k = 0;
   bulanRows.forEach(function(t){ if(t.jenis==='masuk') m += t.jumlah; else k += t.jumlah; });
-  $('totalMasuk').textContent = rp(m);$('totalKeluar').textContent = rp(k);
+  $('totalMasuk').textContent = rp(m);
+  $('totalKeluar').textContent = rp(k);
 
   updateChart(bulanRows);
   renderChips();
@@ -493,4 +502,291 @@ function render(msg){
     var li = document.createElement('li');
     li.className = 'p-4 sm:px-5 flex items-center justify-between hover:bg-slate-50/80 transition-colors border-b border-slate-50 last:border-0';
     var leftBox = document.createElement('div');
-    leftBox.
+    leftBox.className = 'flex items-center gap-3.5 min-w-0 w-full';
+    var icon = document.createElement('div');
+    icon.className = (t.jenis === 'masuk' ? 'bg-emerald-100' : 'bg-rose-100') + ' w-11 h-11 rounded-full flex items-center justify-center text-lg shrink-0 shadow-inner';
+    icon.textContent = ikon(t.kategori);
+    var ket = document.createElement('div');
+    ket.className = 'flex-1 min-w-0';
+    var a = document.createElement('p');
+    a.className = 'font-semibold text-slate-800 text-sm truncate';
+    a.textContent = t.ket;
+    var d = document.createElement('p');
+    d.className = 'text-xs text-slate-500 mt-0.5 truncate';
+    d.textContent = t.kategori;
+    ket.appendChild(a); ket.appendChild(d);
+    leftBox.appendChild(icon); leftBox.appendChild(ket);
+
+    var rightBox = document.createElement('div');
+    rightBox.className = 'text-right shrink-0 ml-3';
+    var j = document.createElement('p');
+    j.className = 'font-bold text-sm sm:text-base tracking-tight ' + (t.jenis==='masuk'?'text-emerald-600':'text-rose-600');
+    j.textContent = (t.jenis==='masuk'?'+':'−') + rp(t.jumlah);
+    rightBox.appendChild(j);
+
+    if(loggedIn){
+      var ak = document.createElement('div');
+      ak.className = 'flex gap-3 mt-1.5 justify-end';
+      var ed = document.createElement('button');
+      ed.className = 'text-[11px] font-bold text-blue-600 hover:text-blue-800 uppercase tracking-wider active:scale-90 transition-transform';
+      ed.textContent = 'Edit';
+      ed.onclick = function(){ mulaiEdit(t); };
+      var h = document.createElement('button');
+      h.className = 'text-[11px] font-bold text-rose-600 hover:text-rose-800 uppercase tracking-wider active:scale-90 transition-transform';
+      h.textContent = 'Hapus';
+      h.onclick = function(){
+        $('teksConfirmHapus').innerHTML = `Hapus <b>${t.ket}</b>?`;
+        tempDeleteId = t.id;
+        bukaModal('modalConfirmWrap', 'modalConfirmBox');
+      };
+      ak.appendChild(ed); ak.appendChild(h); rightBox.appendChild(ak);
+    }
+    li.appendChild(leftBox); li.appendChild(rightBox);
+    ul.appendChild(li);
+  });
+}
+$('btnLoadMore').onclick = function(){ limitTampil += 20; render(); };
+
+/* ===== 2. FITUR SKELETON LOADING ===== */
+function showLoadingSkeleton() {
+  $('saldo').innerHTML = '<span class="animate-pulse text-slate-300">Memuat...</span>';
+  var skeletonHtml = '';
+  for(var i=0; i<3; i++) {
+    skeletonHtml += '<li class="p-4 sm:px-5 flex items-center justify-between border-b border-slate-50"><div class="flex items-center gap-3.5 w-full"><div class="w-11 h-11 rounded-full bg-slate-200 animate-pulse shrink-0"></div><div class="flex-1 space-y-2"><div class="h-4 bg-slate-200 rounded w-3/4 animate-pulse"></div><div class="h-3 bg-slate-200 rounded w-1/2 animate-pulse"></div></div></div></li>';
+  }
+  $('daftar').innerHTML = skeletonHtml;
+}
+
+function load(){
+  if(!$('riwayat').hidden) loadRiwayat();
+  if(data.length === 0) showLoadingSkeleton(); 
+
+  Promise.all([
+    sb.from('kas').select('*').order('tanggal',{ascending:false}).order('created_at',{ascending:false}),
+    sb.from('pengaturan').select('saldo_awal').eq('id',1).maybeSingle()
+  ]).then(function(res){
+    var r = res[0], p = res[1];
+    if(r.error){ data = []; render('Data gagal dimuat. Cek pengaturan Supabase.'); return; }
+    data = r.data.map(function(t){ t.kategori = t.kategori || 'Lainnya'; return t; });
+    saldoAwal = (p && p.data && p.data.saldo_awal) ? Number(p.data.saldo_awal) : 0;
+    renderBulan(); render();
+  });
+}
+
+/* ===== Login & Set Auth ===== */
+function setAuth(session){
+  loggedIn = !!session;
+  $('boxRiwayat').hidden = !loggedIn;
+  if(!loggedIn){ $('riwayat').hidden = true; $('btnRiwayat').textContent = 'Lihat riwayat sistem'; }
+  $('btnBukaAwal').hidden = !loggedIn;
+  $('boxCetak').hidden = !loggedIn;
+  $('loginBox').hidden = true;
+  $('btnLogin').textContent = loggedIn ? 'Keluar' : 'Login';
+  
+  // Tampilkan/Sembunyikan FAB Tombol Plus
+  var fab = $('btnFab');
+  if(loggedIn) { fab.hidden = false; fab.classList.remove('hidden'); } 
+  else { fab.hidden = true; fab.classList.add('hidden'); tutupModal('modalFormWrap', 'modalFormBox'); }
+  
+  if(!loggedIn) selesaiEdit();
+  render();
+}
+
+$('btnLogin').onclick = function(){
+  if(loggedIn){
+    sb.auth.signOut({ scope: 'local' }).then(function(){ setAuth(null); showToast('Berhasil keluar', 'success'); });
+  } else {
+    $('loginBox').hidden = !$('loginBox').hidden;
+    if(!$('loginBox').hidden){ window.scrollTo({top:0, behavior:'smooth'}); $('email').focus(); }
+  }
+};
+$('doLogin').onclick = function(){
+  var btn = $('doLogin'); btn.textContent = 'Loading...'; btn.disabled = true;
+  sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('pass').value }).then(function(r){
+    btn.textContent = 'Masuk'; btn.disabled = false;
+    if(r.error) showToast('Login gagal: email atau password salah', 'error'); 
+    else { $('pass').value = ''; showToast('Berhasil login sebagai bendahara', 'success'); }
+  });
+};
+function tekanEnter(e) { if (e.key === 'Enter') $('doLogin').click(); }
+$('email').addEventListener('keypress', tekanEnter);
+$('pass').addEventListener('keypress', tekanEnter);
+
+sb.auth.onAuthStateChange(function(_e, session){ setAuth(session); });
+$('bulan').onchange = function(){ limitTampil = 20; render(); };
+$('cari').oninput = function(){ limitTampil = 20; render(); };
+
+/* ===== Tambah & Edit Form Logic ===== */
+function mulaiEdit(t){
+  editId = t.id;
+  $('jenis').value = t.jenis; isiKategori(t.kategori);
+  $('tanggal').value = t.tanggal; $('ket').value = t.ket; $('jumlah').value = ribuan(t.jumlah);
+  $('formTitle').textContent = 'Edit Transaksi';
+  $('tambah').textContent = 'Simpan Perubahan'; 
+  bukaModal('modalFormWrap', 'modalFormBox');
+}
+function selesaiEdit(){
+  editId = null;
+  $('ket').value = ''; $('jumlah').value = '';
+  $('formTitle').textContent = 'Catat Transaksi';
+  $('tambah').textContent = 'Simpan Transaksi';
+}
+
+$('tambah').onclick = function(){
+  var jumlah = parseInt($('jumlah').value.replace(/\D/g,''), 10), ket = $('ket').value.trim();
+  if(!ket || !jumlah || jumlah <= 0 || !$('tanggal').value){ showToast('Lengkapi data terlebih dahulu', 'error'); return; }
+  var payload = { jenis: $('jenis').value, tanggal: $('tanggal').value, kategori: $('kategori').value, ket: ket, jumlah: jumlah };
+  var btn = $('tambah'); btn.disabled = true; btn.textContent = 'Menyimpan...';
+  var q = editId ? sb.from('kas').update(payload).eq('id', editId) : sb.from('kas').insert(payload);
+  q.then(function(r){
+    btn.disabled = false;
+    if(r.error){ showToast('Gagal menyimpan: ' + r.error.message, 'error'); btn.textContent = editId ? 'Simpan Perubahan' : 'Simpan Transaksi'; return; }
+    showToast('Transaksi berhasil disimpan', 'success');
+    tutupModal('modalFormWrap', 'modalFormBox');
+    selesaiEdit(); load();
+  });
+};
+
+/* ===== Hitungan bantu ===== */
+function saldoSebelum(ym){
+  var s = saldoAwal;
+  data.forEach(function(t){ if(t.tanggal.slice(0,7) < ym) s += t.jenis==='masuk' ? t.jumlah : -t.jumlah; });
+  return s;
+}
+function perKategori(rows, jenis){
+  var map = {}, total = 0;
+  rows.forEach(function(t){ if(t.jenis===jenis){ map[t.kategori] = (map[t.kategori]||0) + t.jumlah; total += t.jumlah; } });
+  return { map: map, total: total };
+}
+
+/* ===== Bagikan ke WhatsApp ===== */
+$('btnWA').onclick = function(){
+  var ym = $('bulan').value, rows = rowsBulan();
+  var awal = ym ? saldoSebelum(ym) : saldoAwal;
+  var pm = perKategori(rows,'masuk'), pk = perKategori(rows,'keluar');
+  var akhir = awal + pm.total - pk.total;
+  var t = '*Laporan Kas ' + NAMA_RT + '*\nPeriode: ' + (ym ? namaBulan(ym) : 'Semua periode') +
+    '\n\nSaldo awal: ' + rp(awal) + '\nPemasukan: ' + rp(pm.total) + '\nPengeluaran: ' + rp(pk.total) +
+    '\n*Saldo akhir: ' + rp(akhir) + '*';
+  var top = Object.keys(pk.map).map(function(k){ return [k, pk.map[k]]; }).sort(function(a,b){ return b[1]-a[1]; }).slice(0,5);
+  if(top.length){
+    t += '\n\nPengeluaran terbesar:';
+    top.forEach(function(x,i){ t += '\n' + (i+1) + '. ' + x[0] + ': ' + rp(x[1]); });
+  }
+  t += '\n\nRincian lengkap: ' + location.href.split('#')[0].split('?')[0];
+  window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank');
+};
+
+/* ===== Export Excel & Cetak ===== */
+$('export').onclick = function(){
+  var rows = rowsBulan().sort(function(a,b){ return a.tanggal.localeCompare(b.tanggal) || a.created_at.localeCompare(b.created_at); });
+  var b = $('bulan').value;
+  var saldo = b ? saldoSebelum(b) : saldoAwal;
+  var aoa = [['Tanggal','Kategori','Keterangan','Pemasukan','Pengeluaran','Saldo']];
+  aoa.push(['', '', b ? 'Saldo awal periode' : 'Saldo awal', '', '', saldo]);
+  rows.forEach(function(t){
+    saldo += t.jenis==='masuk' ? t.jumlah : -t.jumlah;
+    aoa.push([t.tanggal, t.kategori, t.ket, t.jenis==='masuk'?t.jumlah:'', t.jenis==='keluar'?t.jumlah:'', saldo]);
+  });
+  var ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = [{wch:12},{wch:22},{wch:36},{wch:14},{wch:14},{wch:14}];
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Kas');
+  XLSX.writeFile(wb, 'kas-' + (b || 'semua') + '.xlsx');
+};
+
+$('cetak').onclick = function(){
+  var ym = $('bulan').value;
+  if(!ym){ showToast('Pilih bulan dulu di filter untuk dicetak', 'error'); return; }
+  var rows = rowsBulan().sort(function(a,b){ return a.tanggal.localeCompare(b.tanggal) || a.created_at.localeCompare(b.created_at); });
+  var awal = saldoSebelum(ym), pm = perKategori(rows,'masuk'), pk = perKategori(rows,'keluar');
+  var akhir = awal + pm.total - pk.total;
+
+  function tabel(judul, o){
+    var h = '<h3>' + judul + '</h3><table>';
+    var keys = Object.keys(o.map);
+    if(!keys.length) h += '<tr><td>Tidak ada</td><td class="r">Rp0</td></tr>';
+    keys.forEach(function(k){ h += '<tr><td>' + esc(k) + '</td><td class="r">' + rp(o.map[k]) + '</td></tr>'; });
+    return h + '<tr class="tot"><td>Total</td><td class="r">' + rp(o.total) + '</td></tr></table>';
+  }
+  var h = '<h1>Laporan Kas ' + esc(NAMA_RT) + '</h1><p class="sub">Periode ' + namaBulan(ym) + '</p>';
+  h += '<h3>Ringkasan</h3><table>' +
+       '<tr><td>Saldo awal bulan</td><td class="r">' + rp(awal) + '</td></tr>' +
+       '<tr><td>Total pemasukan</td><td class="r">' + rp(pm.total) + '</td></tr>' +
+       '<tr><td>Total pengeluaran</td><td class="r">' + rp(pk.total) + '</td></tr>' +
+       '<tr class="tot"><td>Saldo akhir bulan</td><td class="r">' + rp(akhir) + '</td></tr></table>';
+  h += tabel('Pemasukan per kategori', pm) + tabel('Pengeluaran per kategori', pk);
+  h += '<h3>Rincian transaksi</h3><table><tr><th>Tanggal</th><th>Keterangan</th><th class="r">Pemasukan</th><th class="r">Pengeluaran</th></tr>';
+  rows.forEach(function(t){
+    h += '<tr><td>' + tglIndo(t.tanggal) + '</td><td>' + esc(t.ket) + ' (' + esc(t.kategori) + ')</td>' +
+         '<td class="r">' + (t.jenis==='masuk' ? rp(t.jumlah) : '') + '</td>' +
+         '<td class="r">' + (t.jenis==='keluar' ? rp(t.jumlah) : '') + '</td></tr>';
+  });
+  h += '</table><p class="sub" style="margin-top:28px">Dicetak ' + tglIndo(new Date().toISOString().slice(0,10)) + '</p>';
+  $('laporan').innerHTML = h;
+  document.body.classList.add('cetak');
+  window.print();
+};
+window.addEventListener('afterprint', function(){ document.body.classList.remove('cetak'); });
+
+/* ===== Riwayat sistem ===== */
+var FIELD = { jenis:'jenis', tanggal:'tanggal', kategori:'kategori', ket:'keterangan', jumlah:'jumlah' };
+function fmtVal(k, v){
+  if(k === 'jumlah') return rp(Number(v));
+  if(k === 'tanggal') return tglIndo(v);
+  if(k === 'jenis') return v === 'masuk' ? 'pemasukan' : 'pengeluaran';
+  return '“' + v + '”';
+}
+function uraian(r){
+  var b = r.data_baru, l = r.data_lama;
+  if(r.aksi === 'tambah') return 'Menambah ' + (b.jenis==='masuk'?'pemasukan':'pengeluaran') + ' “' + b.ket + '” (' + (b.kategori||'Lainnya') + ') ' + rp(b.jumlah);
+  if(r.aksi === 'hapus') return 'Menghapus ' + (l.jenis==='masuk'?'pemasukan':'pengeluaran') + ' “' + l.ket + '” (' + (l.kategori||'Lainnya') + ') ' + rp(l.jumlah);
+  if(r.aksi === 'saldo_awal') return l ? 'Mengubah saldo awal dari ' + rp(Number(l.saldo_awal)) + ' menjadi ' + rp(Number(b.saldo_awal)) : 'Mengatur saldo awal ' + rp(Number(b.saldo_awal));
+  var beda = [];
+  Object.keys(FIELD).forEach(function(k){
+    if(l[k] !== b[k]) beda.push(FIELD[k] + ' ' + fmtVal(k, l[k]) + ' → ' + fmtVal(k, b[k]));
+  });
+  return 'Mengubah “' + l.ket + '”: ' + (beda.length ? beda.join('; ') : 'tanpa perubahan isi');
+}
+function loadRiwayat(){
+  sb.from('riwayat').select('*').order('waktu',{ascending:false}).limit(50).then(function(r){
+    var ul = $('riwayat'); ul.innerHTML = '';
+    if(r.error){
+      var e = document.createElement('li'); e.className = 'p-6 text-center text-slate-400 text-sm'; e.textContent = 'Riwayat gagal dimuat.'; ul.appendChild(e); return;
+    }
+    if(!r.data.length){
+      var k = document.createElement('li'); k.className = 'p-6 text-center text-slate-400 text-sm'; k.textContent = 'Belum ada perubahan tercatat.'; ul.appendChild(k); return;
+    }
+    r.data.forEach(function(x){
+      var li = document.createElement('li'); li.className = 'p-4 flex flex-col hover:bg-slate-50/50';
+      var a = document.createElement('p'); a.className = 'text-sm text-slate-700 font-medium mb-1'; a.textContent = uraian(x);
+      var d = document.createElement('p'); d.className = 'text-[11px] text-slate-400';
+      var oleh = x.email ? x.email.split('@')[0] : 'bendahara';
+      d.textContent = new Date(x.waktu).toLocaleString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) + ' • ' + oleh;
+      li.appendChild(a); li.appendChild(d); ul.appendChild(li);
+    });
+  });
+}
+$('btnRiwayat').onclick = function(){
+  var ul = $('riwayat'); ul.hidden = !ul.hidden;
+  $('btnRiwayat').textContent = ul.hidden ? 'Lihat riwayat sistem' : 'Sembunyikan riwayat sistem';
+  if(!ul.hidden) loadRiwayat();
+};
+
+/* ===== Pasang di HP (PWA) ===== */
+var promptPasang = null;
+window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); promptPasang = e; });
+if(window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) $('boxPasang').hidden = true;
+$('btnPasang').onclick = function(){
+  if(promptPasang){ promptPasang.prompt(); promptPasang = null; return; }
+  showToast('Android: Ketuk ⋮ lalu "Instal aplikasi". iPhone: Ketuk Bagikan lalu "Tambah ke Layar Utama".', 'success');
+};
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+}
+
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>
