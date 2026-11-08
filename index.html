@@ -80,7 +80,7 @@
 <!-- Wadah Toast Notifikasi -->
 <div id="toast-box" class="fixed top-5 left-1/2 -translate-x-1/2 z-[60] flex flex-col gap-2 w-[90%] max-w-sm pointer-events-none"></div>
 
-<main class="max-w-xl mx-auto p-4 sm:p-6 pb-28"> <!-- pb-28 untuk ruang tombol FAB -->
+<main class="max-w-xl mx-auto p-4 sm:p-6 pb-28">
 
   <!-- Header -->
   <div class="flex items-center justify-between mb-6">
@@ -123,7 +123,10 @@
         <p id="totalKeluar" class="text-lg sm:text-xl font-bold text-rose-700">Rp0</p>
       </div>
     </div>
+    
     <button id="btnWA" class="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-3 rounded-xl transition-all duration-200 active:scale-[0.98]">💬 Bagikan ke WhatsApp</button>
+    <button id="btnCCTV" class="mt-2 w-full bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold py-3 rounded-xl transition-all duration-200 active:scale-[0.98] shadow-md shadow-slate-900/20">📹 Pantau CCTV Pos Satpam</button>
+
     <div class="mt-4">
       <button id="btnBukaAwal" class="text-xs text-slate-400 underline hover:text-slate-600 transition-colors" hidden>Atur saldo awal</button>
     </div>
@@ -185,6 +188,27 @@
 <!-- 1. Floating Action Button (FAB) -->
 <button id="btnFab" class="fixed bottom-6 right-6 z-40 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg shadow-blue-500/40 flex items-center justify-center text-3xl font-light transition-all duration-300 hover:scale-110 active:scale-95 hidden" aria-label="Tambah Transaksi">+</button>
 
+<!-- Modal CCTV -->
+<div id="modalCctvWrap" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 px-4">
+  <div id="modalCctvBox" class="modal-box bg-black w-full max-w-2xl rounded-3xl shadow-2xl transform scale-95 transition-all duration-300 overflow-hidden relative border border-slate-700">
+    <!-- Header Modal CCTV -->
+    <div class="p-4 bg-slate-900 flex justify-between items-center border-b border-slate-800">
+      <div class="flex items-center gap-2">
+        <span class="relative flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+        </span>
+        <h3 class="font-bold text-white text-sm">LIVE - Pos Utama</h3>
+      </div>
+      <button id="btnCloseCctv" class="text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-full w-8 h-8 flex items-center justify-center transition-colors">✕</button>
+    </div>
+    <!-- Layar CCTV (Rasio 16:9) -->
+    <div class="relative w-full pb-[56.25%] bg-black">
+      <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/watch?v=DOOrIxw5xOw" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
 <!-- 2. Modal Form Transaksi (Bottom Sheet / Center Pop-up) -->
 <div id="modalFormWrap" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
   <div id="modalFormBox" class="modal-box bg-white w-full max-w-lg p-5 sm:p-6 rounded-t-3xl sm:rounded-3xl shadow-2xl transform translate-y-full sm:translate-y-10 sm:scale-95 transition-all duration-300 max-h-[90vh] overflow-y-auto">
@@ -192,7 +216,6 @@
       <h3 class="font-bold text-slate-800 text-lg" id="formTitle">Catat Transaksi</h3>
       <button id="btnCloseForm" class="text-slate-400 hover:text-rose-500 bg-slate-100 hover:bg-rose-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors">✕</button>
     </div>
-    
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div class="flex flex-col gap-1">
         <label class="text-xs font-semibold text-slate-500 ml-1">Jenis</label>
@@ -217,7 +240,6 @@
         <label class="text-xs font-semibold text-slate-500 ml-1">Jumlah (Rp)</label>
         <input id="jumlah" type="text" inputmode="numeric" autocomplete="off" placeholder="Contoh: 50.000" class="w-full px-4 py-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 bg-slate-50 outline-none font-bold text-2xl text-slate-800 transition-all text-center">
       </div>
-      
       <button id="tambah" class="col-span-1 sm:col-span-2 mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl transition-all duration-200 active:scale-[0.98] shadow-md shadow-blue-500/20 disabled:opacity-50">Simpan Transaksi</button>
     </div>
   </div>
@@ -320,6 +342,10 @@ function tutupModal(idWrap, idBox) {
 // Buka/Tutup Modal Form (FAB)
 $('btnFab').onclick = function(){ bukaModal('modalFormWrap', 'modalFormBox'); };
 $('btnCloseForm').onclick = function(){ tutupModal('modalFormWrap', 'modalFormBox'); };
+
+// Buka/Tutup Modal CCTV
+$('btnCCTV').onclick = function(){ bukaModal('modalCctvWrap', 'modalCctvBox'); };
+$('btnCloseCctv').onclick = function(){ tutupModal('modalCctvWrap', 'modalCctvBox'); };
 
 // Modal Hapus
 var tempDeleteId = null;
