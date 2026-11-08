@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Buku Kas RT</title>
+<title>KAS</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -64,7 +64,7 @@ li:first-child{border-top:0}
 <body>
 <main>
   <div class="top">
-    <h1 id="judul">Buku Kas RT</h1>
+    <h1 id="judul">KAS</h1>
     <button class="link" id="btnLogin">Login bendahara</button>
   </div>
 
@@ -115,7 +115,7 @@ li:first-child{border-top:0}
 var SUPABASE_URL = 'https://jfluvtgiyachbwrbstow.supabase.co';
 var SUPABASE_ANON_KEY = 'sb_publishable_rrcjWfQGPCG-mbXwaDt0-w_-CJhKP4H';
 
-//var NAMA_RT = 'RT 007 / RW 003';   // contoh: 'RT 05 / RW 02 Perumahan Melati'
+var NAMA_RT = 'RT 007 / RW 003';   // contoh: 'RT 05 / RW 02 Perumahan Melati'
 // Daftar kategori, boleh diubah sesuka kamu
 var KAT = {
   masuk: ['Iuran keamanan','Iuran kebersihan','Kas sosial','Sumbangan','Lainnya'],
