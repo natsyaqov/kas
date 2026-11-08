@@ -91,7 +91,7 @@ li:first-child{border-top:0}
     <input id="tanggal" type="date" aria-label="Tanggal">
     <select class="full" id="kategori" aria-label="Kategori"></select>
     <input class="full" id="ket" type="text" placeholder="Keterangan, misal: Iuran keamanan Pak Budi" aria-label="Keterangan">
-    <input class="full" id="jumlah" type="number" min="0" inputmode="numeric" placeholder="Jumlah (Rp)" aria-label="Jumlah">
+    <input class="full" id="jumlah" type="text" inputmode="numeric" autocomplete="off" placeholder="Jumlah (Rp), contoh: 50.000" aria-label="Jumlah">
     <button class="simpan" id="tambah">Tambah transaksi</button>
     <button class="batal" id="batal" hidden>Batal edit</button>
   </div>
@@ -130,6 +130,8 @@ var BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus',
 var namaBulan = function(ym){ var p = ym.split('-'); return BULAN[+p[1]-1] + ' ' + p[0]; };
 var tglIndo = function(s){ return new Date(s+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}); };
 
+var ribuan = function(v){ var d = String(v).replace(/\D/g,'').replace(/^0+(?=\d)/,''); return d.replace(/\B(?=(\d{3})+(?!\d))/g,'.'); };
+
 var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 var data = [], saldoAwal = 0, loggedIn = false, editId = null;
 $('judul').textContent = 'Buku Kas ' + NAMA_RT;
@@ -143,6 +145,7 @@ function isiKategori(pilih){
   if(pilih) sel.value = pilih;
 }
 $('jenis').onchange = function(){ isiKategori(); };
+$('jumlah').addEventListener('input', function(){ this.value = ribuan(this.value); });
 isiKategori();
 
 function filtered(){
@@ -247,7 +250,7 @@ $('bulan').onchange = function(){ render(); };
 function mulaiEdit(t){
   editId = t.id;
   $('jenis').value = t.jenis; isiKategori(t.kategori);
-  $('tanggal').value = t.tanggal; $('ket').value = t.ket; $('jumlah').value = t.jumlah;
+  $('tanggal').value = t.tanggal; $('ket').value = t.ket; $('jumlah').value = ribuan(t.jumlah);
   $('tambah').textContent = 'Simpan perubahan'; $('batal').hidden = false;
   $('form').scrollIntoView({behavior:'smooth', block:'center'});
 }
@@ -259,7 +262,7 @@ function selesaiEdit(){
 $('batal').onclick = selesaiEdit;
 
 $('tambah').onclick = function(){
-  var jumlah = parseInt($('jumlah').value, 10), ket = $('ket').value.trim();
+  var jumlah = parseInt($('jumlah').value.replace(/\D/g,''), 10), ket = $('ket').value.trim();
   if(!ket || !jumlah || jumlah <= 0 || !$('tanggal').value){ alert('Isi tanggal, keterangan, dan jumlah dulu ya.'); return; }
   var payload = { jenis: $('jenis').value, tanggal: $('tanggal').value, kategori: $('kategori').value, ket: ket, jumlah: jumlah };
   var btn = $('tambah'); btn.disabled = true;
