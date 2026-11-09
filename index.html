@@ -14,10 +14,6 @@
 // Terapkan tema lebih awal supaya tidak berkedip
 (function(){try{var t=localStorage.getItem('tema');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark');}catch(e){}})();
 </script>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   body { font-family: 'Inter', sans-serif; }
@@ -80,7 +76,7 @@
 <!-- Wadah Toast Notifikasi -->
 <div id="toast-box" class="fixed top-5 left-1/2 -translate-x-1/2 z-[60] flex flex-col gap-2 w-[90%] max-w-sm pointer-events-none"></div>
 
-<main class="max-w-2xl mx-auto p-4 sm:p-6 pb-28">
+<main class="max-w-xl mx-auto p-4 sm:p-6 pb-28">
 
   <!-- Header -->
   <div class="flex items-center justify-between mb-6">
@@ -109,46 +105,26 @@
 
   <!-- Card Saldo Utama -->
   <section class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 mb-6 text-center" aria-live="polite">
-    <p class="text-sm text-slate-500 font-semibold mb-1">Saldo Kas Saat Ini</p>
+    <p class="text-sm text-slate-500 font-medium mb-1">Total Saldo Kas</p>
     <h2 id="saldo" class="text-4xl sm:text-5xl font-bold text-slate-900 tracking-tight mb-2 transition-all">Rp0</h2>
     <p id="infoAwal" class="text-xs text-slate-400" hidden></p>
-    <p class="text-xs text-slate-400 mt-1">Saldo terkini berdasarkan seluruh transaksi yang tercatat</p>
 
     <div class="grid grid-cols-2 gap-3 mt-6 pt-5 border-t border-slate-100 text-left">
       <div class="bg-emerald-50 rounded-2xl p-4 border border-emerald-100/50">
-        <p id="lblPeriodeMasuk" class="text-xs text-emerald-600 font-semibold mb-1">Pemasukan • Semua Periode</p>
+        <p id="lblPeriodeMasuk" class="text-xs text-emerald-600 font-semibold mb-1">Pemasukan</p>
         <p id="totalMasuk" class="text-lg sm:text-xl font-bold text-emerald-700">Rp0</p>
       </div>
       <div class="bg-rose-50 rounded-2xl p-4 border border-rose-100/50">
-        <p id="lblPeriodeKeluar" class="text-xs text-rose-600 font-semibold mb-1">Pengeluaran • Semua Periode</p>
+        <p id="lblPeriodeKeluar" class="text-xs text-rose-600 font-semibold mb-1">Pengeluaran</p>
         <p id="totalKeluar" class="text-lg sm:text-xl font-bold text-rose-700">Rp0</p>
       </div>
     </div>
     
-    <!-- Bagikan laporan WhatsApp: khusus bendahara -->
-    <div id="boxBagikanWA" class="mt-4" hidden>
-      <button id="btnWA" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-3 rounded-xl transition-all duration-200 active:scale-[0.98]">💬 Bagikan ke WhatsApp</button>
-    </div>
-    <p id="terakhirDiperbarui" class="text-[11px] text-slate-400 mt-3">Memuat waktu pembaruan...</p>
+    <button id="btnWA" class="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-3 rounded-xl transition-all duration-200 active:scale-[0.98]">💬 Bagikan ke WhatsApp</button>
 
     <div class="mt-4">
       <button id="btnBukaAwal" class="text-xs text-slate-400 underline hover:text-slate-600 transition-colors" hidden>Atur saldo awal</button>
     </div>
-  </section>
-
-  <!-- Grafik transparansi keuangan untuk warga -->
-  <section class="bg-white rounded-3xl shadow-sm border border-slate-100 p-5 sm:p-6 mb-7">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-4">
-      <div>
-        <h2 class="text-base font-bold text-slate-800">Ringkasan Keuangan</h2>
-        <p id="judulGrafik" class="text-xs text-slate-500 mt-1">Perbandingan pemasukan dan pengeluaran</p>
-      </div>
-      <span class="text-[11px] text-slate-400">Data berdasarkan transaksi tercatat</span>
-    </div>
-    <div class="relative h-56 sm:h-64">
-      <canvas id="grafikKas" role="img" aria-label="Grafik pemasukan dan pengeluaran kas"></canvas>
-    </div>
-    <p id="pesanGrafik" class="text-xs text-slate-400 text-center mt-2" hidden></p>
   </section>
 
   <!-- Pencarian & Filter -->
@@ -173,7 +149,6 @@
 
   <!-- Daftar Transaksi -->
   <ul id="daftar" class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden"></ul>
-  <p class="text-[11px] text-slate-400 text-center mt-3">Riwayat ini menampilkan transaksi kas yang telah dicatat oleh bendahara.</p>
   
   <!-- Tombol Load More / Pagination -->
   <div class="mt-4 text-center" id="boxLoadMore" hidden>
@@ -185,17 +160,6 @@
     <button id="btnRiwayat" class="text-xs font-semibold text-slate-500 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 px-5 py-2.5 rounded-full transition-all duration-200 active:scale-95">Lihat riwayat sistem</button>
   </div>
   <ul id="riwayat" class="mt-4 bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden divide-y divide-slate-50" hidden></ul>
-
-  <!-- Kontak bendahara: otomatis disembunyikan jika nomor belum diisi -->
-  <section id="kontakBendahara" class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mt-7" hidden>
-    <div class="flex items-center justify-between gap-3">
-      <div>
-        <p class="text-sm font-bold text-slate-800">Ada pertanyaan tentang kas?</p>
-        <p class="text-xs text-slate-500 mt-1">Hubungi bendahara RT untuk konfirmasi transaksi.</p>
-      </div>
-      <a id="linkKontakBendahara" href="#" target="_blank" rel="noopener" class="shrink-0 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl">Hubungi</a>
-    </div>
-  </section>
 
   <!-- Pasang di HP -->
   <div class="text-center mt-10" id="boxPasang">
@@ -273,13 +237,15 @@
   </div>
 </div>
 
+<!-- SCRIPT EKSTERNAL DITARUH DI BAWAH DENGAN DEFER -->
+<script src="https://cdn.tailwindcss.com" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js" defer></script>
+
 <script>
 // ====== ISI BAGIAN INI ======
 var SUPABASE_URL = 'https://jfluvtgiyachbwrbstow.supabase.co';
 var SUPABASE_ANON_KEY = 'sb_publishable_rrcjWfQGPCG-mbXwaDt0-w_-CJhKP4H';
 var NAMA_RT = 'RT 007 / RW 003';
-// Isi nomor WhatsApp bendahara (format internasional, tanpa +) agar kontak tampil untuk warga.
-var KONTAK_BENDAHARA = '';
 var KAT = {
   masuk: ['Iuran keamanan','Iuran kebersihan','Kas sosial','Sumbangan','Lainnya'],
   keluar: ['Gaji satpam','Petugas sampah','Listrik & air pos ronda','Santunan warga','Kegiatan warga','Perlengkapan','Lainnya']
@@ -300,14 +266,22 @@ var tglIndo = function(s){ return new Date(s+'T00:00:00').toLocaleDateString('id
 var ribuan = function(v){ var d = String(v).replace(/\D/g,'').replace(/^0+(?=\d)/,''); return d.replace(/\B(?=(\d{3})+(?!\d))/g,'.'); };
 var ikon = function(k){ return IKON[k] || '📌'; };
 
-var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-var data = [], saldoAwal = 0, loggedIn = false, editId = null, katAktif = '';
+var sb, data = [], saldoAwal = 0, loggedIn = false, editId = null, katAktif = '';
 var limitTampil = 20;
-var grafikKas = null;
-if (KONTAK_BENDAHARA) { $('kontakBendahara').hidden = false; $('linkKontakBendahara').href = 'https://wa.me/' + KONTAK_BENDAHARA.replace(/\\D/g, ''); }
 
-$('judul').textContent = 'KAS ' + NAMA_RT.split('/')[0].trim();
-$('tanggal').value = new Date().toISOString().slice(0,10);
+function initApp() {
+  if (typeof supabase === 'undefined') {
+    setTimeout(initApp, 50);
+    return;
+  }
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  $('judul').textContent = 'KAS ' + NAMA_RT.split('/')[0].trim();
+  $('tanggal').value = new Date().toISOString().slice(0,10);
+  
+  sb.auth.onAuthStateChange(function(_e, session){ setAuth(session); });
+  load();
+  setInterval(load, 30000);
+}
 
 /* ===== 1. FITUR TOAST NOTIFICATION ===== */
 function showToast(msg, type) {
@@ -339,17 +313,15 @@ function tutupModal(idWrap, idBox) {
   wrap.classList.add('opacity-0', 'pointer-events-none');
   if(idWrap === 'modalFormWrap'){
     box.classList.add('translate-y-full', 'sm:translate-y-10', 'sm:scale-95');
-    if(!editId) setTimeout(selesaiEdit, 300); // Reset form jika ditutup
+    if(!editId) setTimeout(selesaiEdit, 300);
   } else {
     box.classList.add('scale-95');
   }
 }
 
-// Buka/Tutup Modal Form (FAB)
 $('btnFab').onclick = function(){ bukaModal('modalFormWrap', 'modalFormBox'); };
 $('btnCloseForm').onclick = function(){ tutupModal('modalFormWrap', 'modalFormBox'); };
 
-// Modal Hapus
 var tempDeleteId = null;
 $('btnBatalHapus').onclick = function(){ tutupModal('modalConfirmWrap', 'modalConfirmBox'); tempDeleteId = null; };
 $('btnYakinHapus').onclick = function(){
@@ -363,7 +335,6 @@ $('btnYakinHapus').onclick = function(){
   });
 };
 
-// Modal Saldo Awal
 $('btnBukaAwal').onclick = function(){ 
   $('inputSaldoAwal').value = ribuan(saldoAwal.toString()); 
   bukaModal('modalPromptWrap', 'modalPromptBox'); 
@@ -381,14 +352,12 @@ $('btnSimpanAwal').onclick = function(){
   });
 };
 
-
 /* ===== Tema gelap/terang ===== */
 var isDark = function(){ return document.documentElement.classList.contains('dark'); };
 function setTema(d){
   document.documentElement.classList.toggle('dark', d);
   try { localStorage.setItem('tema', d ? 'dark' : 'light'); } catch(e){}
   $('btnTema').textContent = d ? '☀️' : '🌙';
-  document.querySelector('meta[name=theme-color]').content = d ? '#0b1220' : '#2563eb';
 }
 $('btnTema').textContent = isDark() ? '☀️' : '🌙';
 $('btnTema').onclick = function(){ setTema(!isDark()); render(); };
@@ -451,85 +420,6 @@ function formatGrupTanggal(tgl) {
   return tglIndo(tgl).toUpperCase();
 }
 
-
-function dataGrafik(){
-  var terpilih = $('bulan').value;
-  var map = {};
-  if(terpilih){
-    var jumlahHari = new Date(Number(terpilih.slice(0,4)), Number(terpilih.slice(5,7)), 0).getDate();
-    for(var i=1;i<=jumlahHari;i++){
-      var key = terpilih + '-' + String(i).padStart(2,'0');
-      map[key] = {masuk:0, keluar:0};
-    }
-    rowsBulan().forEach(function(t){
-      if(!map[t.tanggal]) map[t.tanggal] = {masuk:0, keluar:0};
-      map[t.tanggal][t.jenis] += Number(t.jumlah);
-    });
-    var keys = Object.keys(map).sort();
-    return {
-      labels: keys.map(function(k){ return String(Number(k.slice(8,10))); }),
-      masuk: keys.map(function(k){ return map[k].masuk; }),
-      keluar: keys.map(function(k){ return map[k].keluar; }),
-      title: 'Per hari • ' + namaBulan(terpilih)
-    };
-  }
-  data.forEach(function(t){
-    var key = t.tanggal.slice(0,7);
-    if(!map[key]) map[key] = {masuk:0, keluar:0};
-    map[key][t.jenis] += Number(t.jumlah);
-  });
-  var keys = Object.keys(map).sort().slice(-6);
-  return {
-    labels: keys.map(namaBulan),
-    masuk: keys.map(function(k){ return map[k].masuk; }),
-    keluar: keys.map(function(k){ return map[k].keluar; }),
-    title: 'Per bulan • 6 bulan terakhir'
-  };
-}
-function renderGrafik(){
-  var canvas = $('grafikKas');
-  if(!canvas || typeof Chart === 'undefined') {
-    $('pesanGrafik').hidden = false;
-    $('pesanGrafik').textContent = 'Grafik belum dapat ditampilkan. Silakan muat ulang halaman.';
-    return;
-  }
-  var g = dataGrafik();
-  $('judulGrafik').textContent = g.title;
-  var hasData = g.masuk.some(function(v){return v>0;}) || g.keluar.some(function(v){return v>0;});
-  $('pesanGrafik').hidden = hasData;
-  $('pesanGrafik').textContent = hasData ? '' : 'Belum ada transaksi pada periode ini.';
-  if(grafikKas) grafikKas.destroy();
-  var dark = document.documentElement.classList.contains('dark');
-  grafikKas = new Chart(canvas, {
-    type:'bar',
-    data:{
-      labels:g.labels,
-      datasets:[
-        {label:'Pemasukan',data:g.masuk,backgroundColor:'rgba(16,185,129,.78)',borderRadius:6,maxBarThickness:28},
-        {label:'Pengeluaran',data:g.keluar,backgroundColor:'rgba(244,63,94,.72)',borderRadius:6,maxBarThickness:28}
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      interaction:{mode:'index',intersect:false},
-      plugins:{
-        legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,color:dark?'#cbd5e1':'#64748b',font:{family:'Inter',size:11}}},
-        tooltip:{callbacks:{label:function(c){return c.dataset.label+': Rp '+Number(c.raw).toLocaleString('id-ID');}}}
-      },
-      scales:{
-        x:{grid:{display:false},ticks:{color:dark?'#94a3b8':'#64748b',maxRotation:0,autoSkip:true}},
-        y:{beginAtZero:true,grid:{color:dark?'rgba(148,163,184,.12)':'rgba(148,163,184,.18)'},ticks:{color:dark?'#94a3b8':'#64748b',callback:function(v){return 'Rp '+Number(v).toLocaleString('id-ID');}}}
-      }
-    }
-  });
-}
-function updatePeriodLabels(){
-  var b = $('bulan').value;
-  var suffix = b ? namaBulan(b) : 'Semua Periode';
-  $('lblPeriodeMasuk').textContent = 'Pemasukan • ' + suffix;
-  $('lblPeriodeKeluar').textContent = 'Pengeluaran • ' + suffix;
-}
-
 /* ===== Tampilan utama ===== */
 function render(msg){
   var total = saldoAwal;
@@ -542,8 +432,6 @@ function render(msg){
   bulanRows.forEach(function(t){ if(t.jenis==='masuk') m += t.jumlah; else k += t.jumlah; });
   $('totalMasuk').textContent = rp(m);
   $('totalKeluar').textContent = rp(k);
-  updatePeriodLabels();
-  renderGrafik();
 
   renderChips();
 
@@ -553,7 +441,7 @@ function render(msg){
   if(!rows.length){
     var e = document.createElement('li');
     e.className = 'py-12 px-6 flex flex-col items-center justify-center text-center bg-slate-50/50';
-    e.innerHTML = '<div class="text-5xl mb-3">🗂️</div><p class="text-slate-500 font-medium text-sm">' + (msg || 'Belum ada transaksi pada periode atau pencarian ini.') + '</p>';
+    e.innerHTML = '<div class="text-5xl mb-3">🗂️</div><p class="text-slate-500 font-medium text-sm">' + (msg || 'Tidak ada transaksi ditemukan.') + '</p>';
     ul.appendChild(e); 
     $('boxLoadMore').hidden = true;
     return;
@@ -620,6 +508,7 @@ function render(msg){
 $('btnLoadMore').onclick = function(){ limitTampil += 20; render(); };
 
 function load(){
+  if(!sb) return;
   if(!$('riwayat').hidden) loadRiwayat();
   Promise.all([
     sb.from('kas').select('*').order('tanggal',{ascending:false}).order('created_at',{ascending:false}).limit(300),
@@ -629,7 +518,6 @@ function load(){
     if(r.error){ data = []; render('Data gagal dimuat. Cek pengaturan Supabase.'); return; }
     data = r.data.map(function(t){ t.kategori = t.kategori || 'Lainnya'; return t; });
     saldoAwal = (p && p.data && p.data.saldo_awal) ? Number(p.data.saldo_awal) : 0;
-    $('terakhirDiperbarui').textContent = 'Terakhir diperbarui: ' + new Date().toLocaleString('id-ID',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
     renderBulan(); render();
   });
 }
@@ -641,7 +529,6 @@ function setAuth(session){
   if(!loggedIn){ $('riwayat').hidden = true; $('btnRiwayat').textContent = 'Lihat riwayat sistem'; }
   $('btnBukaAwal').hidden = !loggedIn;
   $('boxCetak').hidden = !loggedIn;
-  $('boxBagikanWA').hidden = !loggedIn;
   $('loginBox').hidden = true;
   $('btnLogin').textContent = loggedIn ? 'Keluar' : 'Login';
   
@@ -673,7 +560,6 @@ function tekanEnter(e) { if (e.key === 'Enter') $('doLogin').click(); }
 $('email').addEventListener('keypress', tekanEnter);
 $('pass').addEventListener('keypress', tekanEnter);
 
-sb.auth.onAuthStateChange(function(_e, session){ setAuth(session); });
 $('bulan').onchange = function(){ limitTampil = 20; render(); };
 $('cari').oninput = function(){ limitTampil = 20; render(); };
 
@@ -738,22 +624,33 @@ $('btnWA').onclick = function(){
   window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank');
 };
 
-/* ===== Export Excel & Cetak ===== */
+/* ===== Export Excel (Lazy Load Library) & Cetak ===== */
 $('export').onclick = function(){
-  var rows = rowsBulan().sort(function(a,b){ return a.tanggal.localeCompare(b.tanggal) || a.created_at.localeCompare(b.created_at); });
-  var b = $('bulan').value;
-  var saldo = b ? saldoSebelum(b) : saldoAwal;
-  var aoa = [['Tanggal','Kategori','Keterangan','Pemasukan','Pengeluaran','Saldo']];
-  aoa.push(['', '', b ? 'Saldo awal periode' : 'Saldo awal', '', '', saldo]);
-  rows.forEach(function(t){
-    saldo += t.jenis==='masuk' ? t.jumlah : -t.jumlah;
-    aoa.push([t.tanggal, t.kategori, t.ket, t.jenis==='masuk'?t.jumlah:'', t.jenis==='keluar'?t.jumlah:'', saldo]);
-  });
-  var ws = XLSX.utils.aoa_to_sheet(aoa);
-  ws['!cols'] = [{wch:12},{wch:22},{wch:36},{wch:14},{wch:14},{wch:14}];
-  var wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Kas');
-  XLSX.writeFile(wb, 'kas-' + (b || 'semua') + '.xlsx');
+  var btn = this; btn.textContent = 'Menyiapkan Excel...'; btn.disabled = true;
+  var script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  script.onload = function() {
+    var rows = rowsBulan().sort(function(a,b){ return a.tanggal.localeCompare(b.tanggal) || a.created_at.localeCompare(b.created_at); });
+    var b = $('bulan').value;
+    var saldo = b ? saldoSebelum(b) : saldoAwal;
+    var aoa = [['Tanggal','Kategori','Keterangan','Pemasukan','Pengeluaran','Saldo']];
+    aoa.push(['', '', b ? 'Saldo awal periode' : 'Saldo awal', '', '', saldo]);
+    rows.forEach(function(t){
+      saldo += t.jenis==='masuk' ? t.jumlah : -t.jumlah;
+      aoa.push([t.tanggal, t.kategori, t.ket, t.jenis==='masuk'?t.jumlah:'', t.jenis==='keluar'?t.jumlah:'', saldo]);
+    });
+    var ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols'] = [{wch:12},{wch:22},{wch:36},{wch:14},{wch:14},{wch:14}];
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Kas');
+    XLSX.writeFile(wb, 'kas-' + (b || 'semua') + '.xlsx');
+    btn.textContent = '📊 Export Excel'; btn.disabled = false;
+  };
+  script.onerror = function() {
+    showToast('Gagal memuat library Excel', 'error');
+    btn.textContent = '📊 Export Excel'; btn.disabled = false;
+  };
+  document.head.appendChild(script);
 };
 
 $('cetak').onclick = function(){
@@ -810,6 +707,7 @@ function uraian(r){
   return 'Mengubah “' + l.ket + '”: ' + (beda.length ? beda.join('; ') : 'tanpa perubahan isi');
 }
 function loadRiwayat(){
+  if(!sb) return;
   sb.from('riwayat').select('*').order('waktu',{ascending:false}).limit(50).then(function(r){
     var ul = $('riwayat'); ul.innerHTML = '';
     if(r.error){
@@ -846,8 +744,8 @@ if('serviceWorker' in navigator){
   window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
 }
 
-load();
-setInterval(load, 30000);
+// Jalankan inisialisasi aplikasi
+initApp();
 </script>
 </body>
 </html>
